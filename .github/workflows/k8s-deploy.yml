@@ -1,0 +1,46 @@
+name: Deploy on K8S using Helm
+on:
+  repository_dispatch:
+    types: [ helm-deploy ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Helm
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          helm version
+
+      - name: Setup kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONTEXT }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+          kubectl config get-contexts
+
+      - name: Add Helm repository
+        env:
+          HELM_REPO_URL: https://helm.lda-dev.com
+          HELM_REPO_USERNAME: ${{ secrets.HELM_REPO_USERNAME }}
+          HELM_REPO_PASSWORD: ${{ secrets.HELM_REPO_PASSWORD }}
+        run: |
+          helm repo add repo-lda-dev "$HELM_REPO_URL" \
+            --username "$HELM_REPO_USERNAME" \
+            --password "$HELM_REPO_PASSWORD"
+          helm repo update
+          helm search repo repo-lda-dev
+
+
+      - name: Deploy Helm chart
+        env:
+          NAMESPACE_APP: market
+          HELM_REPO_URL: https://helm.lda-dev.com
+          HELM_REPO_USERNAME: ${{ secrets.HELM_REPO_USERNAME }}
+          HELM_REPO_PASSWORD: ${{ secrets.HELM_REPO_PASSWORD }}
+          NAME_APP: ${{ github.event.client_payload.helm_name }}
+        run: |
+          helm uninstall "$NAME_APP" --namespace "$NAMESPACE_APP" || true
+          helm install "$NAME_APP" "repo-lda-dev/$NAME_APP" --namespace "$NAMESPACE_APP" --create-namespace
