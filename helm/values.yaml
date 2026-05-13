@@ -52,6 +52,11 @@ service:
   port: 80
   portContainer: 8080
 
+jobrunr:
+  enabled: false
+  port: 8000
+  name: jobrunr
+
 ingress:
   enabled: false
   className: ""

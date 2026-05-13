@@ -51,6 +51,11 @@ spec:
               name: {{ .Values.metricCustom.name }}
               protocol: TCP
             {{- end }}
+            {{- if .Values.jobrunr.enabled }}
+            - containerPort: {{ .Values.jobrunr.port }}
+              name: {{ .Values.jobrunr.name }}
+              protocol: TCP
+            {{- end }}
           livenessProbe:
             httpGet:
               path: "{{ .Values.image.probeContext }}/health/liveness"
