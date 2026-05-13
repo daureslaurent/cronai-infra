@@ -25,6 +25,22 @@ imagePullSecrets:
 nameOverride: ""
 fullnameOverride: ""
 
+#env:
+#  # This tells Spring to load the internal file AND this specific external file
+#  - name: SPRING_CONFIG_IMPORT
+#    value: "file:/etc/config/rabbitmq-patch.yml"
+#
+#
+#volumeMounts:
+#  - name: extra-config
+#    mountPath: /etc/config
+#    readOnly: true
+#
+#volumes:
+#  - name: extra-config
+#    configMap:
+#      name: rabbit-extra-config
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
